@@ -14,7 +14,7 @@ def test_send_message():
     queue_url = r["QueueUrl"]
 
     entries = []
-    json_paths = glob.glob("./test/messages/*.json")
+    json_paths = sorted(glob.glob("./test/messages/*.json"))
     for i, json_path in enumerate(json_paths):
         with open(json_path, "r") as json_f:
             json_data = json.load(json_f)
@@ -29,20 +29,10 @@ def test_send_message():
     messages = get_messages(queue_url)
 
     # メッセージ内容
-    message = json.loads(messages[0]["Body"])
-    assert message["message"] == "test message 1"
-
-    message = json.loads(messages[1]["Body"])
-    assert message["message"] == "test message 3"
-
-    message = json.loads(messages[2]["Body"])
-    assert message["message"] == "test message 2"
-
-    message = json.loads(messages[3]["Body"])
-    assert message["message"] == "test message 5"
-
-    message = json.loads(messages[4]["Body"])
-    assert message["message"] == "test message 4"
+    for i, m in enumerate(messages):
+        message = json.loads(m["Body"])
+        expect_message = "test message {}".format(i + 1)
+        assert message["message"] == expect_message
 
     # メッセージ数
     assert len(messages) == 5
